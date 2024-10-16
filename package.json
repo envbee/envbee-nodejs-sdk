@@ -1,5 +1,5 @@
 {
-  "name": "eb-mvp-nodejs-sdk-01",
+  "name": "envbee-sdk",
   "version": "1.0.0",
   "description": "NodeJS SDK to use envbee",
   "main": "index.js",
