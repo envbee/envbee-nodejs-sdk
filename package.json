@@ -20,10 +20,7 @@
   ],
   "author": "envbee",
   "license": "MIT",
-  "bugs": {
-    "url": "https://gitlab.com/envbee/eb-mvp-nodejs-sdk-01/issues"
-  },
-  "homepage": "https://gitlab.com/envbee/eb-mvp-nodejs-sdk-01#readme",
+  "homepage": "https://github.com/envbee/envbee-nodejs-sdk",
   "devDependencies": {
     "ava": "^6.1.3",
     "dotenv": "^16.4.5"
