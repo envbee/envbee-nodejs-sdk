@@ -1,6 +1,5 @@
 # eb-mvp-nodejs-sdk-01
 
-
 This NodeJS SDK is a client for interacting with the envbee API (see https://envbee.dev).
 It provides methods to retrieve variables and manage caching for improved performance.
 
@@ -25,7 +24,9 @@ const envbeeInit = require("envbee-sdk");
 // Provide your API key and secret
 const envbee = envbeeInit({
   key: "YOUR_ENVBEE_API_KEY",
-  secret: "YOUR_ENVBEE_API_SECRET"
+  secret: "YOUR_ENVBEE_API_SECRET",
+  // apiURL: "https://api.envbee.dev",
+  // apiVersion: "v1",
 });
 
 // And you're good to go!
@@ -40,4 +41,3 @@ If you want more details check [the API docs](https://docs.envbee.dev).
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
-
