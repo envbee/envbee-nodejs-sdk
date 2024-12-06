@@ -20,7 +20,7 @@ test.afterEach(() => {
   global.fetch = originalFetch;
 });
 
-test("envbee-init - Missing key and / or secret", function (t) {
+test("envbee-init - Missing key and / or secret", function(t) {
   const error1 = t.throws(() => envbeeInit());
   t.like(error1, { message: MISSING_KEY_AND_SECRET });
   const error2 = t.throws(() => envbeeInit({}));
@@ -37,14 +37,14 @@ test("envbee-init - Missing key and / or secret", function (t) {
   t.like(error7, { message: MISSING_KEY_AND_SECRET });
 });
 
-test("envbee-init - Valid parameters", function (t) {
+test("envbee-init - Valid parameters", function(t) {
   const envbee = envbeeInit({ apiURL, key, secret });
   t.not(envbee, null);
   t.not(envbee, undefined);
   t.is(typeof envbee, "object");
 });
 
-test("envbee-init - Get all variables (invalid credentials)", async function (t) {
+test("envbee-init - Get all variables (invalid credentials)", async function(t) {
   const envbee = envbeeInit({ apiURL, key, secret: "INVALID_SECRET" });
 
   global.fetch = async (url) => {
@@ -67,7 +67,7 @@ test("envbee-init - Get all variables (invalid credentials)", async function (t)
   }
 });
 
-test("envbee-init - Get all variables", async function (t) {
+test("envbee-init - Get all variables", async function(t) {
   const envbee = envbeeInit({ apiURL, key, secret });
 
   global.fetch = async (url) => {
@@ -99,7 +99,7 @@ test("envbee-init - Get all variables", async function (t) {
 
 test.todo("envbee-init - Get all variables (with pagination)");
 
-test("envbee-init - Get variable value", async function (t) {
+test("envbee-init - Get variable value", async function(t) {
   const envbee = envbeeInit({ apiURL, key, secret });
 
   global.fetch = async (url) => {
