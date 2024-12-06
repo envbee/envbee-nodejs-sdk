@@ -53,8 +53,8 @@ test("envbee-init - Get all variables (invalid credentials)", async function (t)
       status: 401,
       json: () =>
         Promise.resolve({
-          message: "Authentication failed: incorrect api_key or api_secret",
-        }),
+          message: "Authentication failed: incorrect api_key or api_secret"
+        })
     };
   };
 
@@ -62,7 +62,7 @@ test("envbee-init - Get all variables (invalid credentials)", async function (t)
     await envbee.getAllVariables();
   } catch (error) {
     t.like(error, {
-      message: "Authentication failed: incorrect api_key or api_secret",
+      message: "Authentication failed: incorrect api_key or api_secret"
     });
   }
 });
@@ -77,8 +77,8 @@ test("envbee-init - Get all variables", async function (t) {
       json: () =>
         Promise.resolve({
           metadata: { limit: 1, offset: 10, total: 100 },
-          data: [{ name: "VAR1", value: "VALUE1" }],
-        }),
+          data: [{ name: "VAR1", value: "VALUE1" }]
+        })
     };
   };
 
@@ -106,7 +106,7 @@ test("envbee-init - Get variable value", async function (t) {
     return {
       ok: true,
       status: 200,
-      json: () => Promise.resolve({ name: "VAR1", value: "VALUE1" }),
+      json: () => Promise.resolve({ name: "VAR1", value: "VALUE1" })
     };
   };
   const value = await envbee.get("VAR1");

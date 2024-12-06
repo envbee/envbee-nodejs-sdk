@@ -24,9 +24,7 @@ const envbeeInit = require("envbee-sdk");
 // Provide your API key and secret
 const envbee = envbeeInit({
   key: "YOUR_ENVBEE_API_KEY",
-  secret: "YOUR_ENVBEE_API_SECRET",
-  // apiURL: "https://api.envbee.dev",
-  // apiVersion: "v1",
+  secret: "YOUR_ENVBEE_API_SECRET"
 });
 
 // And you're good to go!
