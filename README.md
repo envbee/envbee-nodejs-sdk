@@ -7,15 +7,20 @@ It provides methods to retrieve variables and manage caching for improved perfor
 
 - [Installation](#installation)
 - [Usage](#usage)
+- [API Documentation](#api-documentation)
 - [License](#license)
 
 ## Installation
+
+Install the SDK using npm:
 
 ```bash
 npm install envbee-sdk
 ```
 
 ## Usage
+
+To use the SDK, initialize it with your `API key` and `API secret`. You can also set the `log level` during initialization (default is `debug`).
 
 ```javascript
 // First, import the SDK
@@ -34,7 +39,20 @@ const databaseHost = await envbee.get("DATABASE_HOST");
 const allVariables = await envbee.getAllVariables();
 ```
 
-If you want more details check [the API docs](https://docs.envbee.dev).
+### Adjust Log Level
+
+You can dynamically change the log level for debugging or monitoring purposes. Supported levels include: `fatal`, `error`, `warn`, `info`, `debug`, and `trace`.
+
+```javascript
+// Change log level to 'warn'
+envbee.setLogLevel("warn");
+
+// Now only warnings and errors will be logged
+```
+
+## API Documentation
+
+For more details on the available API endpoints and their usage, check [the official API docs](https://docs.envbee.dev).
 
 ## License
 
