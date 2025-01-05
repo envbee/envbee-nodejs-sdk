@@ -50,6 +50,10 @@ envbee.setLogLevel("warn");
 // Now only warnings and errors will be logged
 ```
 
+### Caching
+
+The SDK uses a local cache to store variable values as a failsafe mechanism. The cache is updated with each successful endpoint request and serves as a fallback when the network or Internet connection is temporarily unavailable. Currently, the data is stored unencrypted, but encryption will be implemented in future releases.
+
 ## API Documentation
 
 For more details on the available API endpoints and their usage, check [the official API docs](https://docs.envbee.dev).
