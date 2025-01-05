@@ -26,6 +26,7 @@
     "dotenv": "^16.4.5"
   },
   "dependencies": {
-    "bunyan": "^1.8.15"
+    "bunyan": "^1.8.15",
+    "node-persist": "^4.0.3"
   }
 }

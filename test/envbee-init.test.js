@@ -144,3 +144,43 @@ test("envbee-init - Get variable value", async function (t) {
   t.is(typeof value.name, "string");
   t.is(typeof value.value, "string");
 });
+
+test("envbee-init - Get variables from cache", async function (t) {
+  const envbee = envbeeInit({ apiURL, key, secret });
+
+  global.fetch = async (url) => {
+    return {
+      ok: true,
+      status: 200,
+      json: () =>
+        Promise.resolve({
+          metadata: { limit: 50, offset: 0, total: 1 },
+          data: [
+            { name: "VAR1", value: "VALUE1" },
+            { name: "V2", value: [3, 4, 5] }
+          ]
+        })
+    };
+  };
+
+  // Invoke the app to store the value in the cache
+  {
+    const { data, metadata } = await envbee.getAllVariables();
+    t.is("VALUE1", data[0].value);
+  }
+
+  // Force an error
+  global.fetch = async (url) => {
+    return {
+      ok: true,
+      status: 500,
+      json: () => Promise.resolve({ message: "Forced error" })
+    };
+  };
+
+  // Value will be retrieved from cache
+  const envbee2 = envbeeInit({ apiURL, key, secret });
+  const { data, metadata } = await envbee2.getAllVariables();
+
+  t.is("VALUE1", data[0].value);
+});
