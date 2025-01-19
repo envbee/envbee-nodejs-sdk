@@ -77,7 +77,7 @@ test("envbee-init - Get all variables", async function (t) {
       json: () =>
         Promise.resolve({
           metadata: { limit: 1, offset: 10, total: 100 },
-          data: [{ name: "VAR1", value: "VALUE1" }]
+          data: [{ name: "VAR1", content: { value: "VALUE1" } }]
         })
     };
   };
@@ -94,7 +94,7 @@ test("envbee-init - Get all variables", async function (t) {
 
   const [variable1] = data;
   t.is(typeof variable1.name, "string");
-  t.is(typeof variable1.value, "string");
+  t.is(typeof variable1.content, "object");
 });
 
 test("envbee-init - Get all variables (with pagination)", async function (t) {
@@ -107,7 +107,7 @@ test("envbee-init - Get all variables (with pagination)", async function (t) {
       json: () =>
         Promise.resolve({
           metadata: { limit: 1, offset: 10, total: 100 },
-          data: [{ name: "VAR1", value: "VALUE1" }]
+          data: [{ name: "VAR1", content: { value: "VALUE1" } }]
         })
     };
   };
@@ -124,10 +124,10 @@ test("envbee-init - Get all variables (with pagination)", async function (t) {
 
   const [variable1] = data;
   t.is(typeof variable1.name, "string");
-  t.is(typeof variable1.value, "string");
+  t.is(typeof variable1.content, "object");
 
   t.is("VAR1", variable1.name);
-  t.is("VALUE1", variable1.value);
+  t.is("VALUE1", variable1.content.value);
 });
 
 test("envbee-init - Get variable value", async function (t) {
@@ -137,12 +137,13 @@ test("envbee-init - Get variable value", async function (t) {
     return {
       ok: true,
       status: 200,
-      json: () => Promise.resolve({ name: "VAR1", value: "VALUE1" })
+      json: () =>
+        Promise.resolve({ name: "VAR1", content: { value: "VALUE1" } })
     };
   };
   const value = await envbee.get("VAR1");
-  t.is(typeof value.name, "string");
-  t.is(typeof value.value, "string");
+
+  t.is("VALUE1", value);
 });
 
 test("envbee-init - Get variables from cache", async function (t) {
@@ -156,8 +157,8 @@ test("envbee-init - Get variables from cache", async function (t) {
         Promise.resolve({
           metadata: { limit: 50, offset: 0, total: 1 },
           data: [
-            { name: "VAR1", value: "VALUE1" },
-            { name: "V2", value: [3, 4, 5] }
+            { name: "VAR1", content: { value: "VALUE1" } },
+            { name: "V2", content: { value: [3, 4, 5] } }
           ]
         })
     };
@@ -166,7 +167,7 @@ test("envbee-init - Get variables from cache", async function (t) {
   // Invoke the app to store the value in the cache
   {
     const { data, metadata } = await envbee.getAllVariables();
-    t.is("VALUE1", data[0].value);
+    t.is("VALUE1", data[0].content.value);
   }
 
   // Force an error
@@ -182,5 +183,5 @@ test("envbee-init - Get variables from cache", async function (t) {
   const envbee2 = envbeeInit({ apiURL, key, secret });
   const { data, metadata } = await envbee2.getAllVariables();
 
-  t.is("VALUE1", data[0].value);
+  t.is("VALUE1", data[0].content.value);
 });
