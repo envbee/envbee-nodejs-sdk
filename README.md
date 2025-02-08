@@ -1,4 +1,4 @@
-# eb-mvp-nodejs-sdk-01
+# envbee NodeJS SDK
 
 This NodeJS SDK is a client for interacting with the envbee API (see https://envbee.dev).
 It provides methods to retrieve variables and manage caching for improved performance.
