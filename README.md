@@ -33,7 +33,7 @@ const envbee = envbeeInit({
 });
 
 // And you're good to go!
-const databaseHost = await envbee.get("DATABASE_HOST");
+const databaseHost = await envbee.get("YOUR_ENVIRONMENT_VARIABLE_NAME");
 
 // You can also list all the variables you have available
 const allVariables = await envbee.getAllVariables();
