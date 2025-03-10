@@ -2,3 +2,4 @@ node_modules/
 .npm
 lib/envbee_MOCK---API-KEY
 lib/envbee_1__local
+.vscode/launch.json
