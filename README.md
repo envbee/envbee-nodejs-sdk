@@ -15,7 +15,7 @@ It provides methods to retrieve variables and manage caching for improved perfor
 Install the SDK using npm:
 
 ```bash
-npm install envbee-sdk
+npm install --save envbee-sdk
 ```
 
 ## Usage
