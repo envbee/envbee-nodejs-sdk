@@ -247,7 +247,7 @@ test("envbee-init - Get encrypted variable value (SECURE_STRING)", async functio
       status: 200,
       json: () =>
         Promise.resolve({
-          type: "SECURE_STRING",
+          type: "STRING",
           value: encrypted
         })
     };
@@ -292,7 +292,7 @@ test("envbee-init - Decryption fails with wrong secret", async function (t) {
       status: 200,
       json: () =>
         Promise.resolve({
-          type: "SECURE_STRING",
+          type: "STRING",
           value: encrypted
         })
     };
