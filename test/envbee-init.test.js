@@ -1,16 +1,42 @@
 const dotenv = require("dotenv");
 const envbeeInit = require("../lib/envbee-init");
 const test = require("ava");
+const { ENC_PREFIX } = require("../lib/constants");
+const crypto = require("crypto");
 
 dotenv.config({ path: "test/.env" });
 
 const key = process.env.ENVBEE_API_KEY ?? "MOCK---API-KEY";
 const secret = process.env.ENVBEE_API_SECRET ?? "MOCK---API-SECRET";
 const apiURL = process.env.ENVBEE_API_URL;
+const encKey = process.env["ENVBEE_ENC_SECRET"] ?? "0123456789abcdef0123456789abcdef";
 
 const MISSING_KEY_AND_SECRET = "Missing key and / or secret";
 
 let originalFetch;
+
+function encrypt(encKey, plaintext) {
+  if (!encKey || !plaintext) {
+    throw new Error("Missing encryption key or plaintext");
+  }
+
+  // Derive 32-byte key from encKey using SHA-256
+  const key = crypto.createHash("sha256").update(encKey).digest(); // 32 bytes
+
+  // Generate a 12-byte IV (nonce) for AES-GCM
+  const iv = crypto.randomBytes(12);
+
+  // Encrypt using AES-256-GCM
+  const cipher = crypto.createCipheriv("aes-256-gcm", key, iv);
+  const encrypted = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()]);
+  const authTag = cipher.getAuthTag();
+
+  // Concatenate IV + ciphertext + auth tag
+  const fullEncrypted = Buffer.concat([iv, encrypted, authTag]);
+
+  // Return with ENC_PREFIX and base64 encoding
+  return ENC_PREFIX + fullEncrypted.toString("base64");
+}
 
 test.beforeEach(() => {
   originalFetch = global.fetch;
@@ -58,13 +84,7 @@ test("envbee-init - Get all variables (invalid credentials)", async function (t)
     };
   };
 
-  try {
-    await envbee.getVariables();
-  } catch (error) {
-    t.like(error, {
-      message: "Authentication failed: incorrect api_key or api_secret"
-    });
-  }
+  await t.throwsAsync(async () => envbee.getVariables(), { message: "Authentication failed: incorrect api_key or api_secret" });
 });
 
 test("envbee-init - Get all variables", async function (t) {
@@ -183,4 +203,126 @@ test("envbee-init - Get variable value from cache", async function (t) {
   const data = await envbee2.get("VAR1");
 
   t.is("db.server.prod", data);
+});
+
+test("envbee-init - Get variables - unexpected status code", async function (t) {
+  const envbee = envbeeInit({ apiURL, key, secret });
+
+  global.fetch = async () => {
+    return {
+      ok: false,
+      status: 404,
+      json: () => Promise.resolve({ message: "Not Found" })
+    };
+  };
+
+  await t.throwsAsync(
+    async () => {
+      await envbee.getVariables();
+    },
+    { message: "Not Found" }
+  );
+});
+
+test("envbee-init - Get variables - fetch throws", async function (t) {
+  const envbee = envbeeInit({ apiURL, key, secret });
+
+  global.fetch = async () => {
+    throw new Error("Network error");
+  };
+
+  await t.throwsAsync(() => envbee.getVariables(), { message: "Network error" });
+});
+
+test("envbee-init - Get encrypted variable value (SECURE_STRING)", async function (t) {
+  const envbee = envbeeInit({ apiURL, key, secret, encKey });
+
+  const originalValue = "super-secret-password";
+
+  const encrypted = await encrypt(encKey, originalValue);
+
+  global.fetch = async () => {
+    return {
+      ok: true,
+      status: 200,
+      json: () =>
+        Promise.resolve({
+          type: "STRING",
+          value: encrypted
+        })
+    };
+  };
+
+  const decrypted = await envbee.get("SECURE_VAR");
+  t.is(decrypted, originalValue);
+});
+
+test("envbee-init - Get encrypted encrypted by the CLI tool", async function (t) {
+  const envbee = envbeeInit({ apiURL, key, secret, encKey });
+
+  const originalValue = "super-secret-password";
+
+  const encrypted = "envbee:enc:v1:d0ktKfDJB4CIPbRmXfOmVlCU8ZCx4fl/2eZtkjgbqJy3g569ZGDEqnVOP94pDfw2Jg==";
+
+  global.fetch = async () => {
+    return {
+      ok: true,
+      status: 200,
+      json: () =>
+        Promise.resolve({
+          type: "STRING",
+          value: encrypted
+        })
+    };
+  };
+
+  const decrypted = await envbee.get("SECURE_VAR");
+  t.is(decrypted, originalValue);
+});
+
+test("envbee-init - Decryption fails with wrong secret", async function (t) {
+  const originalValue = "sensitive-info";
+  const encrypted = await encrypt(encKey, originalValue);
+
+  const envbee = envbeeInit({ apiURL, key, secret, encKey: "WRONG_SECRET" });
+
+  global.fetch = async () => {
+    return {
+      ok: true,
+      status: 200,
+      json: () =>
+        Promise.resolve({
+          type: "STRING",
+          value: encrypted
+        })
+    };
+  };
+
+  const error = await t.throwsAsync(async () => envbee.get("SECURE_VAR"));
+  t.regex(error.message, /decrypt/i);
+});
+
+test("envbee-init - Get encrypted variable from cache", async function (t) {
+  const envbee = envbeeInit({ apiURL, key, secret, encKey });
+
+  const originalValue = "cached-secret";
+  const encrypted = await encrypt(encKey, originalValue);
+
+  global.fetch = async () => {
+    return {
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ type: "SECURE_STRING", value: encrypted })
+    };
+  };
+
+  const val1 = await envbee.get("SECURE_CACHED_VAR");
+  t.is(val1, originalValue);
+
+  global.fetch = async () => {
+    throw new Error("Should not reach fetch again");
+  };
+
+  const val2 = await envbee.get("SECURE_CACHED_VAR");
+  t.is(val2, originalValue);
 });

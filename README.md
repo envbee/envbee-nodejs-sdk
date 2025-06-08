@@ -1,12 +1,16 @@
 # envbee NodeJS SDK
 
-This NodeJS SDK is a client for interacting with the envbee API (see https://envbee.dev).
+This NodeJS SDK is a client for interacting with the envbee API (see [https://envbee.dev](https://envbee.dev)).
 It provides methods to retrieve variables and manage caching for improved performance.
 
-## Table of contents
+## Table of Contents
 
 - [Installation](#installation)
 - [Usage](#usage)
+- [Methods](#methods)
+- [Encryption](#encryption)
+- [Logging](#logging)
+- [Caching](#caching)
 - [API Documentation](#api-documentation)
 - [License](#license)
 
@@ -20,43 +24,71 @@ npm install --save envbee-sdk
 
 ## Usage
 
-To use the SDK, initialize it with your `API key` and `API secret`. You can also set the `log level` during initialization (default is `debug`).
+To use the SDK, initialize it with your API key and secret:
 
 ```javascript
-// First, import the SDK
 const envbeeInit = require("envbee-sdk");
 
-// Provide your API key and secret
 const envbee = envbeeInit({
   key: "YOUR_ENVBEE_API_KEY",
-  secret: "YOUR_ENVBEE_API_SECRET"
+  secret: "YOUR_ENVBEE_API_SECRET",
+  // Optional: encryption key as a 32-byte Buffer or a string
+  encKey: Buffer.from("your-32-byte-encryption-key-here", "utf-8")
 });
 
-// And you're good to go!
-const databaseHost = await envbee.get("YOUR_ENVIRONMENT_VARIABLE_NAME");
+// Retrieve a variable
+const value = await envbee.get("YOUR_ENVIRONMENT_VARIABLE_NAME");
 
-// You can also list all the variables you have available
+// Retrieve all variables
 const allVariables = await envbee.getAllVariables();
 ```
 
-### Adjust Log Level
+## Methods
 
-You can dynamically change the log level for debugging or monitoring purposes. Supported levels include: `fatal`, `error`, `warn`, `info`, `debug`, and `trace`.
+- `get(variableName)`: fetch a variable value.
+- `getVariables(offset, limit)`: fetch multiple variable definitions with pagination.
+
+### Encryption
+
+Some environment variables in envbee may be encrypted using AES-256-GCM. This SDK supports automatic decryption if you provide the correct encryption key (`encKey`) during initialization.
+
+- Encrypted values from the API are prefixed with `envbee:enc:v1:`.
+- If a variable is encrypted and no or incorrect key is provided, decryption will fail.
+- Decryption is done locally; the encryption key is never sent to the API.
+
+Example of providing the encryption key:
 
 ```javascript
-// Change log level to 'warn'
-envbee.setLogLevel("warn");
+const encKey = Buffer.from("32-byte-long-encryption-key-goes-here", "utf-8");
 
-// Now only warnings and errors will be logged
+const envbee = envbeeInit({
+  key: "YOUR_ENVBEE_API_KEY",
+  secret: "YOUR_ENVBEE_API_SECRET",
+  encKey
+});
 ```
 
-### Caching
+## Logging
 
-The SDK uses a local cache to store variable values as a failsafe mechanism. The cache is updated with each successful endpoint request and serves as a fallback when the network or Internet connection is temporarily unavailable. Currently, the data is stored unencrypted, but encryption will be implemented in future releases.
+The SDK includes built-in logging with adjustable log levels. You can set the log level dynamically:
+
+```javascript
+// Set log level to 'warn' to reduce verbosity
+envbee.setLogLevel("warn");
+```
+
+Supported levels are: `fatal`, `error`, `warn`, `info`, `debug`, and `trace`.
+
+## Caching
+
+The SDK caches variables locally to provide fallback data when offline or the API is unreachable. The cache is updated after each successful API call. Local cache stores variables as received from the API, encrypted or plain.
+
+- Encryption key is never stored in cache or sent to API.
+- All encryption/decryption happens locally with AES-256-GCM.
 
 ## API Documentation
 
-For more details on the available API endpoints and their usage, check [the official API docs](https://docs.envbee.dev).
+For more information on envbee API endpoints and usage, visit the [official API documentation](https://docs.envbee.dev).
 
 ## License
 
