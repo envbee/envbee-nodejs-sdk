@@ -1,0 +1,23 @@
+# Exclude tests
+tests/
+__tests__/
+*.spec.js
+lib/envbee_*
+
+# Exclude GitHub Actions
+.github/
+
+# Exclude config files
+*.yml
+*.yaml
+.vscode/
+.eslintrc.js
+.prettierrc
+.nvmrc
+
+# Exclude docs or examples if not needed
+examples/
+docs/
+
+# Exclude dev scripts
+scripts/
