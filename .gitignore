@@ -3,3 +3,4 @@ node_modules/
 lib/envbee_MOCK---API-KEY
 lib/envbee_1__local
 .vscode/launch.json
+.eslintcache

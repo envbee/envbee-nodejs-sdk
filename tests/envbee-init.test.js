@@ -73,7 +73,7 @@ test("envbee-init - Valid parameters", function (t) {
 test("envbee-init - Get all variables (invalid credentials)", async function (t) {
   const envbee = envbeeInit({ apiURL, key, secret: "INVALID_SECRET" });
 
-  global.fetch = async (url) => {
+  global.fetch = async (_) => {
     return {
       ok: true,
       status: 401,
@@ -84,13 +84,15 @@ test("envbee-init - Get all variables (invalid credentials)", async function (t)
     };
   };
 
-  await t.throwsAsync(async () => envbee.getVariables(), { message: "Authentication failed: incorrect api_key or api_secret" });
+  await t.throwsAsync(async () => envbee.getVariables(), {
+    message: "Authentication failed: incorrect api_key or api_secret"
+  });
 });
 
 test("envbee-init - Get all variables", async function (t) {
   const envbee = envbeeInit({ apiURL, key, secret });
 
-  global.fetch = async (url) => {
+  global.fetch = async (_) => {
     return {
       ok: true,
       status: 200,
@@ -127,7 +129,7 @@ test("envbee-init - Get all variables", async function (t) {
 test("envbee-init - Get all variables (with pagination)", async function (t) {
   const envbee = envbeeInit({ apiURL, key, secret });
 
-  global.fetch = async (url) => {
+  global.fetch = async (_) => {
     return {
       ok: true,
       status: 200,
@@ -160,7 +162,7 @@ test("envbee-init - Get all variables (with pagination)", async function (t) {
 test("envbee-init - Get variable value", async function (t) {
   const envbee = envbeeInit({ apiURL, key, secret });
 
-  global.fetch = async (url) => {
+  global.fetch = async (_) => {
     return {
       ok: true,
       status: 200,
@@ -175,7 +177,7 @@ test("envbee-init - Get variable value", async function (t) {
 test("envbee-init - Get variable value from cache", async function (t) {
   const envbee = envbeeInit({ apiURL, key, secret });
 
-  global.fetch = async (url) => {
+  global.fetch = async (_) => {
     return {
       ok: true,
       status: 200,
@@ -190,7 +192,7 @@ test("envbee-init - Get variable value from cache", async function (t) {
   }
 
   // Force an error
-  global.fetch = async (url) => {
+  global.fetch = async (_) => {
     return {
       ok: true,
       status: 500,
@@ -262,7 +264,8 @@ test("envbee-init - Get encrypted encrypted by the CLI tool", async function (t)
 
   const originalValue = "super-secret-password";
 
-  const encrypted = "envbee:enc:v1:d0ktKfDJB4CIPbRmXfOmVlCU8ZCx4fl/2eZtkjgbqJy3g569ZGDEqnVOP94pDfw2Jg==";
+  const encrypted =
+    "envbee:enc:v1:d0ktKfDJB4CIPbRmXfOmVlCU8ZCx4fl/2eZtkjgbqJy3g569ZGDEqnVOP94pDfw2Jg==";
 
   global.fetch = async () => {
     return {
