@@ -15,7 +15,7 @@ for version in "${NODE_VERSIONS[@]}"; do
   echo "🔹 Testing with Node.js v$version..."
 
   docker run --rm \
-    -v "$PWD":/app \
+    -v "$PWD/..":/app \
     -v "$CACHE_DIR":/app/node_modules \
     -w /app \
     -e AVA_FORCE_CI=true \
