@@ -174,6 +174,21 @@ test("envbee-init - Get variable value", async function (t) {
   t.is("db.server.prod", value);
 });
 
+test("envbee-init - Get variable value as number", async function (t) {
+  const envbee = envbeeInit({ apiURL, key, secret });
+
+  global.fetch = async (_) => {
+    return {
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ value: 1324 })
+    };
+  };
+  const value = await envbee.get("VAR1324");
+
+  t.is(1324, value);
+});
+
 test("envbee-init - Get variable value from cache", async function (t) {
   const envbee = envbeeInit({ apiURL, key, secret });
 

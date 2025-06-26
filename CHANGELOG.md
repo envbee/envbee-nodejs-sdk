@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.8.2] - 2025-06-25
+
+### Added
+
+- Compatibility support for Node v14+
+- fix: wrong handling of non string values trying to be decrypted
+
+## [1.8.1] - 2025-06-24
+
+### Added
+
+- Allow SDK configuration via environment variables
+
 ## [1.8.0] - 2025-06-08
 
 ### Added
