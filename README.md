@@ -3,6 +3,10 @@
 This NodeJS SDK is a client for interacting with the envbee API (see [https://envbee.dev](https://envbee.dev)).
 It provides methods to retrieve variables and manage caching for improved performance.
 
+## Requirements
+
+- Node.js version **14.21** or higher is required.
+
 ## Table of Contents
 
 - [Installation](#installation)
@@ -28,17 +32,17 @@ npm install --save envbee-sdk
 To use the SDK, initialize it with your API key and secret (either via parameters or environment variables):
 
 ```javascript
-const envbeeInit = require('envbee-sdk');
+const envbeeInit = require("envbee-sdk");
 
 const envbee = envbeeInit({
-  key: 'YOUR_ENVBEE_API_KEY',
-  secret: 'YOUR_ENVBEE_API_SECRET',
+  key: "YOUR_ENVBEE_API_KEY",
+  secret: "YOUR_ENVBEE_API_SECRET",
   // Optional: encryption key as a 32-byte Buffer or a string
-  encKey: Buffer.from('your-32-byte-encryption-key-here', 'utf-8')
+  encKey: Buffer.from("your-32-byte-encryption-key-here", "utf-8")
 });
 
 // Retrieve a variable
-const value = await envbee.get('YOUR_ENVIRONMENT_VARIABLE_NAME');
+const value = await envbee.get("YOUR_ENVIRONMENT_VARIABLE_NAME");
 
 // Retrieve all variables
 const allVariables = await envbee.getAllVariables();
@@ -63,11 +67,11 @@ export ENVBEE_ENC_KEY="32-byte-encryption-key-goes-here"
 Then initialize the client with no parameters:
 
 ```javascript
-const envbeeInit = require('envbee-sdk');
+const envbeeInit = require("envbee-sdk");
 
 const envbee = envbeeInit();
 
-const value = await envbee.get('YOUR_ENVIRONMENT_VARIABLE_NAME');
+const value = await envbee.get("YOUR_ENVIRONMENT_VARIABLE_NAME");
 ```
 
 If both parameters and environment variables are set, parameters take precedence.
@@ -88,11 +92,11 @@ Some environment variables in envbee may be encrypted using AES-256-GCM. This SD
 Example of providing the encryption key:
 
 ```javascript
-const encKey = Buffer.from('32-byte-long-encryption-key-goes-here', 'utf-8');
+const encKey = Buffer.from("32-byte-long-encryption-key-goes-here", "utf-8");
 
 const envbee = envbeeInit({
-  key: 'YOUR_ENVBEE_API_KEY',
-  secret: 'YOUR_ENVBEE_API_SECRET',
+  key: "YOUR_ENVBEE_API_KEY",
+  secret: "YOUR_ENVBEE_API_SECRET",
   encKey
 });
 ```
@@ -103,7 +107,7 @@ The SDK includes built-in logging with adjustable log levels. You can set the lo
 
 ```javascript
 // Set log level to 'warn' to reduce verbosity
-envbee.setLogLevel('warn');
+envbee.setLogLevel("warn");
 ```
 
 Supported levels are: `fatal`, `error`, `warn`, `info`, `debug`, and `trace`.

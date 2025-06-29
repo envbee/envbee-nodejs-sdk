@@ -1,6 +1,9 @@
 {
   "name": "envbee-sdk",
   "version": "1.8.2",
+  "engines": {
+    "node": ">=14.21.0"
+  },
   "description": "NodeJS SDK to use envbee",
   "main": "index.js",
   "scripts": {
