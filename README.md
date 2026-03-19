@@ -45,7 +45,20 @@ const envbee = envbeeInit({
 const value = await envbee.get("YOUR_ENVIRONMENT_VARIABLE_NAME");
 
 // Retrieve all variables
-const allVariables = await envbee.getAllVariables();
+const allVariables = await envbee.getVariables();
+```
+
+TypeScript consumers are also supported out-of-the-box via bundled type declarations (`index.d.ts`).
+
+```ts
+import envbeeInit = require("envbee-sdk");
+
+const envbee = envbeeInit({
+  key: process.env.ENVBEE_API_KEY,
+  secret: process.env.ENVBEE_API_SECRET
+});
+
+const typedVariables = await envbee.getVariablesTyped();
 ```
 
 ## Environment Variables
@@ -80,6 +93,11 @@ If both parameters and environment variables are set, parameters take precedence
 
 - `get(variableName)`: fetch a variable value.
 - `getVariables(offset, limit)`: fetch multiple variable definitions with pagination.
+- `getVariablesValues(offset, limit)`: fetch multiple variable values with pagination.
+- `getVariablesTyped(offset, limit)`: fetch typed variable definitions with normalized `type`.
+- `getVariablesValuesTyped(offset, limit)`: fetch typed variable values.
+- `fillEnvVars(variableNames?)`: load variables from envbee into `process.env` (API first, then cache fallback).
+- `VariableType`: enum-like object with `STRING`, `NUMBER`, `BOOLEAN`, `JSON`.
 
 ### Encryption
 

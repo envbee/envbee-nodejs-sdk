@@ -75,12 +75,12 @@ test("envbee-init - Get all variables (invalid credentials)", async function (t)
 
   global.fetch = async (_) => {
     return {
-      ok: true,
-      status: 401,
-      json: () =>
-        Promise.resolve({
-          message: "Authentication failed: incorrect api_key or api_secret"
-        })
+    ok: true,
+    status: 401,
+    json: () =>
+      Promise.resolve({
+        message: "Authentication failed: incorrect api_key or api_secret"
+      })
     };
   };
 
@@ -94,20 +94,20 @@ test("envbee-init - Get all variables", async function (t) {
 
   global.fetch = async (_) => {
     return {
-      ok: true,
-      status: 200,
-      json: () =>
-        Promise.resolve({
-          metadata: { limit: 1, offset: 10, total: 100 },
-          data: [
-            {
-              id: 9999,
-              type: "STRING",
-              name: "DATABASE_HOST",
-              description: "IP address or name of the database server"
-            }
-          ]
-        })
+    ok: true,
+    status: 200,
+    json: () =>
+      Promise.resolve({
+        metadata: { limit: 1, offset: 10, total: 100 },
+        data: [
+          {
+            id: 9999,
+            type: "STRING",
+            name: "DATABASE_HOST",
+            description: "IP address or name of the database server"
+          }
+        ]
+      })
     };
   };
 
@@ -131,13 +131,13 @@ test("envbee-init - Get all variables (with pagination)", async function (t) {
 
   global.fetch = async (_) => {
     return {
-      ok: true,
-      status: 200,
-      json: () =>
-        Promise.resolve({
-          metadata: { limit: 1, offset: 10, total: 100 },
-          data: [{ name: "VAR1", content: { value: "VALUE1" } }]
-        })
+    ok: true,
+    status: 200,
+    json: () =>
+      Promise.resolve({
+        metadata: { limit: 1, offset: 10, total: 100 },
+        data: [{ name: "VAR1", content: { value: "VALUE1" } }]
+      })
     };
   };
 
@@ -159,14 +159,54 @@ test("envbee-init - Get all variables (with pagination)", async function (t) {
   t.is("VALUE1", variable1.content.value);
 });
 
+test("envbee-init - Get all variable values", async function (t) {
+  const envbee = envbeeInit({ apiURL, key, secret });
+
+  global.fetch = async (_) => ({
+    ok: true,
+    status: 200,
+    json: () =>
+      Promise.resolve({
+        metadata: { limit: 2, offset: 0, total: 2 },
+        data: [
+          { id: 1, variable_id: 1, content: { value: "Value1" } },
+          { id: 2, variable_id: 2, content: { value: true } }
+        ]
+      })
+  });
+
+  const { data, metadata } = await envbee.getVariablesValues();
+  t.is(metadata.total, 2);
+  t.is(data[0].content.value, "Value1");
+  t.is(data[1].content.value, true);
+});
+
+test("envbee-init - Get variables typed", async function (t) {
+  const envbee = envbeeInit({ apiURL, key, secret });
+
+  global.fetch = async (_) => ({
+    ok: true,
+    status: 200,
+    json: () =>
+      Promise.resolve({
+        metadata: { limit: 1, offset: 0, total: 1 },
+        data: [{ id: 1, type: "STRING", name: "VAR1", description: "desc1" }]
+      })
+  });
+
+  const result = await envbee.getVariablesTyped();
+  t.is(result.data[0].type, envbee.VariableType.STRING);
+  t.is(result.data[0].name, "VAR1");
+});
+
 test("envbee-init - Get variable value", async function (t) {
   const envbee = envbeeInit({ apiURL, key, secret });
 
   global.fetch = async (_) => {
     return {
-      ok: true,
-      status: 200,
-      json: () => Promise.resolve({ value: "db.server.prod" })
+    ok: true,
+    status: 200,
+    json: () => Promise.resolve({ value: "db.server.prod" })
     };
   };
   const value = await envbee.get("VAR1");
@@ -179,9 +219,9 @@ test("envbee-init - Get variable value as number", async function (t) {
 
   global.fetch = async (_) => {
     return {
-      ok: true,
-      status: 200,
-      json: () => Promise.resolve({ value: 1324 })
+    ok: true,
+    status: 200,
+    json: () => Promise.resolve({ value: 1324 })
     };
   };
   const value = await envbee.get("VAR1324");
@@ -189,14 +229,15 @@ test("envbee-init - Get variable value as number", async function (t) {
   t.is(1324, value);
 });
 
-test("envbee-init - Get variable value from cache", async function (t) {
-  const envbee = envbeeInit({ apiURL, key, secret });
+test.serial("envbee-init - Get variable value from cache", async function (t) {
+  const uniqueKey = `${key}-cache-${Date.now()}`;
+  const envbee = envbeeInit({ apiURL, key: uniqueKey, secret });
 
   global.fetch = async (_) => {
     return {
-      ok: true,
-      status: 200,
-      json: () => Promise.resolve({ value: "db.server.prod" })
+    ok: true,
+    status: 200,
+    json: () => Promise.resolve({ value: "db.server.prod" })
     };
   };
 
@@ -209,16 +250,14 @@ test("envbee-init - Get variable value from cache", async function (t) {
   // Force an error
   global.fetch = async (_) => {
     return {
-      ok: true,
-      status: 500,
-      json: () => Promise.resolve({ message: "Forced error" })
+    ok: true,
+    status: 500,
+    json: () => Promise.resolve({ message: "Forced error" })
     };
   };
 
-  // Value will be retrieved from cache
-  const envbee2 = envbeeInit({ apiURL, key, secret });
+  const envbee2 = envbeeInit({ apiURL, key: uniqueKey, secret });
   const data = await envbee2.get("VAR1");
-
   t.is("db.server.prod", data);
 });
 
@@ -227,15 +266,15 @@ test("envbee-init - Get variables - unexpected status code", async function (t) 
 
   global.fetch = async () => {
     return {
-      ok: false,
-      status: 404,
-      json: () => Promise.resolve({ message: "Not Found" })
+    ok: false,
+    status: 404,
+    json: () => Promise.resolve({ message: "Not Found" })
     };
   };
 
   await t.throwsAsync(
     async () => {
-      await envbee.getVariables();
+    await envbee.getVariables();
     },
     { message: "Not Found" }
   );
@@ -260,8 +299,8 @@ test("envbee-init - Get encrypted variable value (SECURE_STRING)", async functio
 
   global.fetch = async () => {
     return {
-      ok: true,
-      status: 200,
+    ok: true,
+    status: 200,
       json: () =>
         Promise.resolve({
           type: "STRING",
@@ -284,8 +323,8 @@ test("envbee-init - Get encrypted encrypted by the CLI tool", async function (t)
 
   global.fetch = async () => {
     return {
-      ok: true,
-      status: 200,
+    ok: true,
+    status: 200,
       json: () =>
         Promise.resolve({
           type: "STRING",
@@ -306,8 +345,8 @@ test("envbee-init - Decryption fails with wrong secret", async function (t) {
 
   global.fetch = async () => {
     return {
-      ok: true,
-      status: 200,
+    ok: true,
+    status: 200,
       json: () =>
         Promise.resolve({
           type: "STRING",
@@ -321,16 +360,17 @@ test("envbee-init - Decryption fails with wrong secret", async function (t) {
 });
 
 test("envbee-init - Get encrypted variable from cache", async function (t) {
-  const envbee = envbeeInit({ apiURL, key, secret, encKey });
+  const uniqueKey = `${key}-enc-cache-${Date.now()}`;
+  const envbee = envbeeInit({ apiURL, key: uniqueKey, secret, encKey });
 
   const originalValue = "cached-secret";
   const encrypted = await encrypt(encKey, originalValue);
 
   global.fetch = async () => {
     return {
-      ok: true,
-      status: 200,
-      json: () => Promise.resolve({ type: "SECURE_STRING", value: encrypted })
+    ok: true,
+    status: 200,
+    json: () => Promise.resolve({ type: "SECURE_STRING", value: encrypted })
     };
   };
 
@@ -343,4 +383,89 @@ test("envbee-init - Get encrypted variable from cache", async function (t) {
 
   const val2 = await envbee.get("SECURE_CACHED_VAR");
   t.is(val2, originalValue);
+});
+
+test.serial("envbee-init - Fill env vars", async function (t) {
+  const envbee = envbeeInit({ apiURL, key, secret });
+
+  process.env.FILL_VAR1 = "";
+  process.env.FILL_VAR2 = "";
+
+  global.fetch = async (url) => {
+    if (url.includes("/v1/variables-values")) {
+      return {
+        ok: true,
+        status: 200,
+        json: () =>
+          Promise.resolve({
+            metadata: { limit: 2, offset: 0, total: 2 },
+            data: [
+              { id: 1, variable_id: 1, content: { value: "Value1" } },
+              { id: 2, variable_id: 2, content: { value: true } }
+            ]
+          })
+      };
+    }
+
+    return {
+      ok: true,
+      status: 200,
+      json: () =>
+        Promise.resolve({
+          metadata: { limit: 2, offset: 0, total: 2 },
+          data: [
+            { id: 1, type: "STRING", name: "FILL_VAR1", description: null },
+            { id: 2, type: "BOOLEAN", name: "FILL_VAR2", description: null }
+          ]
+        })
+    };
+  };
+
+  await envbee.fillEnvVars();
+  t.is(process.env.FILL_VAR1, "Value1");
+  t.is(process.env.FILL_VAR2, "true");
+
+  delete process.env.FILL_VAR1;
+  delete process.env.FILL_VAR2;
+});
+
+test.serial("envbee-init - Fill env vars using cache fallback", async function (t) {
+  const uniqueKey = `${key}-fill-cache-${Date.now()}`;
+  const envbee = envbeeInit({ apiURL, key: uniqueKey, secret });
+  const envbeeFallback = envbeeInit({ apiURL, key: uniqueKey, secret });
+
+  process.env.CACHE_FILL_VAR1 = "";
+  process.env.CACHE_FILL_VAR2 = "";
+
+  global.fetch = async (url) => {
+    if (url.includes("/v1/variables-values-by-name/CACHE_FILL_VAR1/content")) {
+      return {
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ value: "ValueFromCache1" })
+      };
+    }
+    if (url.includes("/v1/variables-values-by-name/CACHE_FILL_VAR2/content")) {
+      return {
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ value: true })
+      };
+    }
+    return {
+      ok: true,
+      status: 500,
+      json: () => Promise.resolve({ message: "Forced error" })
+    };
+  };
+
+  await envbee.get("CACHE_FILL_VAR1");
+  await envbee.get("CACHE_FILL_VAR2");
+
+  await envbeeFallback.fillEnvVars();
+  t.is(process.env.CACHE_FILL_VAR1, "ValueFromCache1");
+  t.is(process.env.CACHE_FILL_VAR2, "true");
+
+  delete process.env.CACHE_FILL_VAR1;
+  delete process.env.CACHE_FILL_VAR2;
 });
