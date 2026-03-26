@@ -4,6 +4,8 @@ declare namespace EnvbeeSDK {
     secret?: string | null;
     apiURL?: string;
     encKey?: string | Uint8Array;
+    cachePath?: string;
+    timeoutSeconds?: number;
   }
 
   interface Metadata {

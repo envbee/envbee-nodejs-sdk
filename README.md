@@ -38,7 +38,11 @@ const envbee = envbeeInit({
   key: "YOUR_ENVBEE_API_KEY",
   secret: "YOUR_ENVBEE_API_SECRET",
   // Optional: encryption key as a 32-byte Buffer or a string
-  encKey: Buffer.from("your-32-byte-encryption-key-here", "utf-8")
+  encKey: Buffer.from("your-32-byte-encryption-key-here", "utf-8"),
+  // Optional: custom cache directory path
+  cachePath: "/tmp/envbee-cache",
+  // Optional: request timeout in seconds (default 4)
+  timeoutSeconds: 4
 });
 
 // Retrieve a variable
@@ -136,6 +140,7 @@ The SDK caches variables locally to provide fallback data when offline or the AP
 
 - Encryption key is never stored in cache or sent to API.
 - All encryption/decryption happens locally with AES-256-GCM.
+- If disk cache is unavailable (permission/path issues), the SDK logs a warning and falls back to in-memory cache for the current process.
 
 ## API Documentation
 

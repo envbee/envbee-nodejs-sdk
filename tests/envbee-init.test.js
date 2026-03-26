@@ -3,6 +3,9 @@ const envbeeInit = require("../lib/envbee-init");
 const test = require("ava");
 const { ENC_PREFIX } = require("../lib/constants");
 const crypto = require("crypto");
+const fs = require("fs");
+const os = require("os");
+const path = require("path");
 
 dotenv.config({ path: "test/.env" });
 
@@ -468,4 +471,79 @@ test.serial("envbee-init - Fill env vars using cache fallback", async function (
 
   delete process.env.CACHE_FILL_VAR1;
   delete process.env.CACHE_FILL_VAR2;
+});
+
+
+test.serial("envbee-init - Accept custom cache path", async function (t) {
+  const uniqueKey = `${key}-custom-path-${Date.now()}`;
+  const customCachePath = path.join(os.tmpdir(), `envbee-custom-cache-${Date.now()}`);
+
+  try {
+    const envbee = envbeeInit({ apiURL, key: uniqueKey, secret, cachePath: customCachePath });
+
+    global.fetch = async (_) => {
+      return {
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ value: "ValueWithCustomPath" })
+      };
+    };
+
+    const data = await envbee.get("CUSTOM_PATH_VAR");
+    t.is(data, "ValueWithCustomPath");
+    t.true(fs.existsSync(customCachePath));
+  } finally {
+    fs.rmSync(customCachePath, { recursive: true, force: true });
+  }
+});
+
+test.serial("envbee-init - Falls back to in-memory cache when disk cache is unavailable", async function (t) {
+  const uniqueKey = `${key}-memory-fallback-${Date.now()}`;
+  const customCachePath = path.join(os.tmpdir(), `envbee-no-write-${Date.now()}`);
+  const originalMkdirSync = fs.mkdirSync;
+
+  try {
+    fs.mkdirSync = () => {
+      throw new Error("EACCES: permission denied");
+    };
+
+    const envbee = envbeeInit({ apiURL, key: uniqueKey, secret, cachePath: customCachePath });
+
+    global.fetch = async (_) => {
+      return {
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ value: "ValueFromMemoryCache" })
+      };
+    };
+
+    const first = await envbee.get("MEM_CACHE_VAR");
+    t.is(first, "ValueFromMemoryCache");
+
+    global.fetch = async (_) => {
+      return {
+        ok: true,
+        status: 500,
+        json: () => Promise.resolve({ message: "Forced error" })
+      };
+    };
+
+    const second = await envbee.get("MEM_CACHE_VAR");
+    t.is(second, "ValueFromMemoryCache");
+  } finally {
+    fs.mkdirSync = originalMkdirSync;
+  }
+});
+
+
+test("envbee-init - times out request using timeoutSeconds", async function (t) {
+  const envbee = envbeeInit({ apiURL, key, secret, timeoutSeconds: 0.01 });
+
+  global.fetch = async (_) => {
+    return await new Promise(() => {});
+  };
+
+  await t.throwsAsync(() => envbee.getVariables(), {
+    message: /timed out/i
+  });
 });
