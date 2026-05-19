@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-NODE_VERSIONS=("14" "16" "18" "20")
+NODE_VERSIONS=("22" "24" "26")
 CACHE_DIR="/tmp/empty-node_modules"
 
 # Ensure the host-side node_modules mount point exists and is empty

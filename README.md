@@ -5,7 +5,7 @@ It provides methods to retrieve variables and manage caching for improved perfor
 
 ## Requirements
 
-- Node.js version **14.21** or higher is required.
+- Node.js version **22** or higher is required.
 
 ## Table of Contents
 
