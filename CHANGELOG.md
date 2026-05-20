@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/envbee/envbee-nodejs-sdk/compare/v1.8.2...v1.9.0) (2026-05-20)
+
+
+### Features
+
+* add fillEnvVars support and TypeScript typings ([#3](https://github.com/envbee/envbee-nodejs-sdk/issues/3)) ([f60f418](https://github.com/envbee/envbee-nodejs-sdk/commit/f60f418d3017085c1540f18358d107c0bbadddb4))
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
