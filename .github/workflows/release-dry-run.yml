@@ -40,4 +40,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DRY_RUN_BRANCH: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
-        run: npx semantic-release --dry-run --no-ci --branches "$DRY_RUN_BRANCH"
+        run: |
+          git status --short --branch
+          env -u GITHUB_ACTIONS \
+            -u GITHUB_REF \
+            -u GITHUB_REF_NAME \
+            -u GITHUB_REF_TYPE \
+            -u GITHUB_HEAD_REF \
+            -u GITHUB_BASE_REF \
+            -u GITHUB_EVENT_NAME \
+            -u CI \
+            npx semantic-release --dry-run --no-ci --branches "$DRY_RUN_BRANCH"
