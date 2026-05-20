@@ -2,10 +2,11 @@
   "name": "envbee-sdk",
   "version": "1.8.2",
   "engines": {
-    "node": ">=14.21.0"
+    "node": ">=22.0.0"
   },
   "description": "NodeJS SDK to use envbee",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "test": "ava",
     "lint": "eslint . --ext .js --cache",
@@ -35,15 +36,23 @@
   },
   "homepage": "https://github.com/envbee/envbee-nodejs-sdk",
   "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^11.0.6",
+    "@semantic-release/npm": "^13.1.5",
+    "@semantic-release/release-notes-generator": "^14.1.1",
     "ava": "^5.3.1",
     "dotenv": "^16.5.0",
     "eslint": "^8.48.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.5.1",
-    "prettier": "^3.6.1"
+    "prettier": "^3.6.1",
+    "semantic-release": "^24.2.9"
   },
   "dependencies": {
     "bunyan": "^1.8.15",
+    "env-paths": "^2.0.0",
     "node-persist": "^4.0.4"
   }
 }

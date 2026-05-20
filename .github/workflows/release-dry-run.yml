@@ -1,0 +1,55 @@
+name: Semantic Release Dry Run
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.ref_name }}
+
+      - name: Prepare pull request branch
+        if: github.event_name == 'pull_request'
+        env:
+          DRY_RUN_BRANCH: ${{ github.head_ref }}
+        run: git checkout -B "$DRY_RUN_BRANCH"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.10.0'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate semantic-release configuration
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRY_RUN_BRANCH: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
+        run: |
+          git status --short --branch
+          env -u GITHUB_ACTIONS \
+            -u GITHUB_REF \
+            -u GITHUB_REF_NAME \
+            -u GITHUB_REF_TYPE \
+            -u GITHUB_HEAD_REF \
+            -u GITHUB_BASE_REF \
+            -u GITHUB_EVENT_NAME \
+            -u CI \
+            npx semantic-release --dry-run --no-ci \
+              --branches "$DRY_RUN_BRANCH" \
+              --plugins @semantic-release/commit-analyzer \
+              --plugins @semantic-release/release-notes-generator

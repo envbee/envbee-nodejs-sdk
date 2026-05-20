@@ -5,7 +5,7 @@ It provides methods to retrieve variables and manage caching for improved perfor
 
 ## Requirements
 
-- Node.js version **14.21** or higher is required.
+- Node.js version **22** or higher is required.
 
 ## Table of Contents
 
@@ -38,14 +38,31 @@ const envbee = envbeeInit({
   key: "YOUR_ENVBEE_API_KEY",
   secret: "YOUR_ENVBEE_API_SECRET",
   // Optional: encryption key as a 32-byte Buffer or a string
-  encKey: Buffer.from("your-32-byte-encryption-key-here", "utf-8")
+  encKey: Buffer.from("your-32-byte-encryption-key-here", "utf-8"),
+  // Optional: custom cache directory path
+  cachePath: "/tmp/envbee-cache",
+  // Optional: request timeout in seconds (default 4)
+  timeoutSeconds: 4
 });
 
 // Retrieve a variable
 const value = await envbee.get("YOUR_ENVIRONMENT_VARIABLE_NAME");
 
 // Retrieve all variables
-const allVariables = await envbee.getAllVariables();
+const allVariables = await envbee.getVariables();
+```
+
+TypeScript consumers are also supported out-of-the-box via bundled type declarations (`index.d.ts`).
+
+```ts
+import envbeeInit = require("envbee-sdk");
+
+const envbee = envbeeInit({
+  key: process.env.ENVBEE_API_KEY,
+  secret: process.env.ENVBEE_API_SECRET
+});
+
+const typedVariables = await envbee.getVariablesTyped();
 ```
 
 ## Environment Variables
@@ -80,6 +97,11 @@ If both parameters and environment variables are set, parameters take precedence
 
 - `get(variableName)`: fetch a variable value.
 - `getVariables(offset, limit)`: fetch multiple variable definitions with pagination.
+- `getVariablesValues(offset, limit)`: fetch multiple variable values with pagination.
+- `getVariablesTyped(offset, limit)`: fetch typed variable definitions with normalized `type`.
+- `getVariablesValuesTyped(offset, limit)`: fetch typed variable values.
+- `fillEnvVars(variableNames?)`: load variables from envbee into `process.env` (API first, then cache fallback).
+- `VariableType`: enum-like object with `STRING`, `NUMBER`, `BOOLEAN`, `JSON`.
 
 ### Encryption
 
@@ -118,6 +140,7 @@ The SDK caches variables locally to provide fallback data when offline or the AP
 
 - Encryption key is never stored in cache or sent to API.
 - All encryption/decryption happens locally with AES-256-GCM.
+- If disk cache is unavailable (permission/path issues), the SDK logs a warning and falls back to in-memory cache for the current process.
 
 ## API Documentation
 
